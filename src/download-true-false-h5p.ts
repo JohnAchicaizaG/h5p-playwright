@@ -10,13 +10,13 @@ const downloadLogger = logger.child('Main');
 
 /**
  * Script para descargar contenido H5P (True/False Question).
- * 
+ *
  * Este script utiliza el patrón Page Object para mantener el código organizado.
  * Requiere una sesión activa (ejecutar login.ts primero).
- * 
+ *
  * @remarks
  * Requiere que exista h5p-auth.json generado por login.ts
- * 
+ *
  * @example
  * ```bash
  * # Primero hacer login

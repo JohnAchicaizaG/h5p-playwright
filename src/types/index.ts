@@ -1,6 +1,6 @@
 /**
  * Tipos y interfaces para el proyecto H5P Playwright.
- * 
+ *
  * Este módulo centraliza todas las definiciones de tipos para mantener
  * consistencia y type-safety en todo el proyecto.
  */

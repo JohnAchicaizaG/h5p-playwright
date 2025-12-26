@@ -2,7 +2,7 @@ import type { BrowserConfig, H5PUrls, PathConfig } from '../types/index.js';
 
 /**
  * Configuración por defecto del navegador Playwright.
- * 
+ *
  * Centraliza todos los valores de configuración relacionados con el navegador,
  * timeouts y comportamiento de las pruebas.
  */
@@ -14,7 +14,7 @@ export const browserConfig: BrowserConfig = {
 
 /**
  * URLs del sitio H5P.org.
- * 
+ *
  * Centraliza todas las URLs utilizadas en los tests para facilitar
  * el mantenimiento y evitar duplicación.
  */
@@ -27,7 +27,7 @@ export const h5pUrls: H5PUrls = {
 
 /**
  * Configuración de rutas de archivos del proyecto.
- * 
+ *
  * Define las rutas donde se guardan archivos generados durante
  * la ejecución de los tests.
  */
@@ -46,7 +46,7 @@ export const directories = {
 
 /**
  * Selectores CSS y ARIA para elementos de la página.
- * 
+ *
  * Centraliza los selectores para facilitar mantenimiento y hacer
  * los tests más resilientes a cambios en la UI.
  */
@@ -59,7 +59,7 @@ export const selectors = {
     submitButton: '#edit-submit',
     logoutLink: 'Log out',
   },
-  
+
   /** Selectores para verificación de sesión */
   session: {
     loggedInBody: 'body.logged-in',
@@ -80,7 +80,7 @@ export const selectors = {
 
 /**
  * Timeouts específicos para diferentes operaciones.
- * 
+ *
  * Define timeouts más granulares para operaciones específicas.
  */
 export const timeouts = {

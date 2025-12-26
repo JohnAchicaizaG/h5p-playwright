@@ -19,7 +19,11 @@ export abstract class H5PAutomationError extends Error {
    */
   public readonly context: Record<string, unknown> | undefined;
 
-  constructor(message: string, code: string, context: Record<string, unknown> | undefined = undefined) {
+  constructor(
+    message: string,
+    code: string,
+    context: Record<string, unknown> | undefined = undefined
+  ) {
     super(message);
     this.name = this.constructor.name;
     this.code = code;

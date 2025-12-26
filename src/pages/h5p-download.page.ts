@@ -14,10 +14,10 @@ const downloadLogger = logger.child('Download');
 
 /**
  * Page Object para descargar contenido H5P.
- * 
+ *
  * Encapsula toda la lógica para navegar y descargar contenidos desde h5p.org,
  * incluyendo interacción con iframes y manejo de descargas.
- * 
+ *
  * @example
  * ```ts
  * const downloadPage = new H5PDownloadPage(page);
@@ -30,14 +30,14 @@ const downloadLogger = logger.child('Download');
 export class H5PDownloadPage {
   /**
    * Crea una nueva instancia del Page Object.
-   * 
+   *
    * @param page - Instancia de la página de Playwright
    */
   constructor(private readonly page: Page) {}
 
   /**
    * Navega a la página de ejemplos y descargas de H5P.
-   * 
+   *
    * @returns Promise que se resuelve cuando la navegación está completa
    * @throws {NavigationError} Si la navegación falla
    */
@@ -81,7 +81,7 @@ export class H5PDownloadPage {
 
   /**
    * Navega a una página de contenido específico.
-   * 
+   *
    * @param contentName - Nombre del contenido a buscar
    * @param urlPattern - Patrón de URL esperado
    * @returns Promise que se resuelve cuando la navegación está completa
@@ -101,11 +101,7 @@ export class H5PDownloadPage {
       this.page.waitForURL(urlPattern, { timeout: timeouts.navigation }),
       contentLink.click(),
     ]).catch((error) => {
-      throw new NavigationError(
-        `Contenido: ${contentName}`,
-        this.page.url(),
-        error as Error
-      );
+      throw new NavigationError(`Contenido: ${contentName}`, this.page.url(), error as Error);
     });
 
     downloadLogger.info('Navegación exitosa al contenido', { contentName });
@@ -113,7 +109,7 @@ export class H5PDownloadPage {
 
   /**
    * Obtiene el iframe de H5P en la página.
-   * 
+   *
    * @returns FrameLocator del iframe H5P
    */
   getH5PIframe(): FrameLocator {
@@ -122,7 +118,7 @@ export class H5PDownloadPage {
 
   /**
    * Hace clic en el botón "Reuse" dentro del iframe H5P.
-   * 
+   *
    * @returns Promise que se resuelve cuando se hizo clic exitosamente
    * @throws {ElementNotFoundError} Si no se encuentra el botón
    */
@@ -135,9 +131,12 @@ export class H5PDownloadPage {
       .getByRole('button', { name: selectors.download.reuseButton })
       .or(frame.locator(selectors.download.reuseButtonAria));
 
-    await reuseBtn.first().waitFor({ timeout: timeouts.navigation }).catch((error) => {
-      throw new ElementNotFoundError('Botón Reuse', timeouts.navigation, this.page.url());
-    });
+    await reuseBtn
+      .first()
+      .waitFor({ timeout: timeouts.navigation })
+      .catch((error) => {
+        throw new ElementNotFoundError('Botón Reuse', timeouts.navigation, this.page.url());
+      });
 
     await reuseBtn.first().click();
     downloadLogger.info('Botón Reuse clickeado exitosamente');
@@ -145,7 +144,7 @@ export class H5PDownloadPage {
 
   /**
    * Descarga el archivo H5P haciendo clic en el botón/enlace de descarga.
-   * 
+   *
    * @param downloadDir - Directorio donde guardar el archivo
    * @returns Promise con la información de la descarga
    * @throws {ElementNotFoundError} Si no se encuentra el botón de descarga
@@ -164,13 +163,16 @@ export class H5PDownloadPage {
       .or(frame.getByRole('button', { name: selectors.download.downloadLink }))
       .or(frame.locator(selectors.download.downloadHref));
 
-    await downloadTrigger.first().waitFor({ timeout: timeouts.navigation }).catch((error) => {
-      throw new ElementNotFoundError(
-        'Botón/enlace de descarga',
-        timeouts.navigation,
-        this.page.url()
-      );
-    });
+    await downloadTrigger
+      .first()
+      .waitFor({ timeout: timeouts.navigation })
+      .catch((error) => {
+        throw new ElementNotFoundError(
+          'Botón/enlace de descarga',
+          timeouts.navigation,
+          this.page.url()
+        );
+      });
 
     // Iniciar descarga
     const [download] = await Promise.all([
@@ -190,7 +192,7 @@ export class H5PDownloadPage {
 
   /**
    * Captura un screenshot de la página actual.
-   * 
+   *
    * @param filePath - Ruta donde guardar el screenshot
    * @returns Promise que se resuelve cuando el screenshot se ha guardado
    */
@@ -200,7 +202,7 @@ export class H5PDownloadPage {
 
   /**
    * Obtiene la URL actual de la página.
-   * 
+   *
    * @returns La URL actual
    */
   getCurrentUrl(): string {
@@ -209,10 +211,10 @@ export class H5PDownloadPage {
 
   /**
    * Descarga un contenido H5P completo.
-   * 
+   *
    * Orquesta todos los pasos necesarios: navegación, interacción con iframe,
    * y descarga del archivo.
-   * 
+   *
    * @param options - Opciones de descarga
    * @returns Resultado de la operación
    */
