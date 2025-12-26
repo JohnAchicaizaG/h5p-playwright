@@ -1,0 +1,10 @@
+# Archivos ignorados por Prettier
+node_modules/
+dist/
+build/
+coverage/
+*.min.js
+*.bundle.js
+package-lock.json
+.env
+h5p-auth.json
