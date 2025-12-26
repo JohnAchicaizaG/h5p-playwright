@@ -1,305 +1,199 @@
-# H5P Playwright Testing
+# H5P Playwright Automation
 
-Proyecto de automatización de pruebas para H5P.org usando Playwright y TypeScript.
+Automatización limpia y profesional para H5P.org usando Playwright y TypeScript.
 
-## 📋 Características
+## 🎯 Filosofía del Proyecto
 
-- ✅ **Page Object Pattern**: Arquitectura mantenible y escalable
-- ✅ **TypeScript**: Type-safety completo con tipos e interfaces
-- ✅ **Gestión de Sesión**: Login una vez, reutiliza la sesión en múltiples tests
-- ✅ **Configuración Centralizada**: Todas las configuraciones en un solo lugar
-- ✅ **Manejo de Errores Robusto**: Custom error classes con contexto detallado
-- ✅ **Retry Logic**: Reintentos automáticos con exponential backoff
-- ✅ **Logger Estructurado**: Logging profesional con niveles y colores
-- ✅ **Screenshots Automáticos**: Captura automática en caso de fallo
-- ✅ **Documentación TSDoc**: Código completamente documentado
-- ✅ **Calidad de Código**: ESLint y Prettier configurados con reglas estrictas
+Este proyecto demuestra cómo escribir código de automatización **profesional pero pragmático**:
 
-## 🏗️ Arquitectura del Proyecto
+- ✅ **Sin sobre-ingeniería**: Solo lo necesario, nada más
+- ✅ **Page Object Pattern**: Código organizado y reutilizable
+- ✅ **TypeScript**: Type-safety sin complejidad innecesaria
+- ✅ **Fácil de extender**: Estructura clara para agregar nuevos scripts
+- ✅ **Mantenible**: Documentación justa, código auto-explicativo
+
+## 📁 Estructura del Proyecto
 
 ```
 h5p-playwright/
 ├── src/
-│   ├── config/          # Configuraciones centralizadas
-│   │   └── browser.config.ts
-│   ├── pages/           # Page Objects (patrón de diseño)
-│   │   └── h5p-login.page.ts
-│   ├── types/           # Definiciones de tipos TypeScript
-│   │   └── index.ts
-│   ├── utils/           # Utilidades
-│   │   ├── env.ts       # Manejo de variables de entorno
-│   │   ├── errors.ts    # Custom error classes
-│   │   ├── logger.ts    # Logger estructurado
-│   │   └── retry.ts     # Lógica de reintentos
-│   ├── login.ts         # Script principal de login
-│   └── with-session.ts  # Script para verificar sesión
-├── .env                 # Variables de entorno (no versionado)
-├── .env.example         # Ejemplo de variables requeridas
-├── .eslintrc.json       # Configuración de ESLint
-├── .prettierrc          # Configuración de Prettier
-├── h5p-auth.json        # Sesión guardada (generado)
-└── package.json
+│   ├── pages/                    # Page Objects
+│   │   ├── h5p-login.page.ts     # Lógica de login
+│   │   └── h5p-download.page.ts  # Lógica de descarga
+│   ├── utils/
+│   │   └── logger.ts             # Logger simple con colores
+│   ├── config.ts                 # Configuración centralizada
+│   ├── login.ts                  # Script de login
+│   ├── download-true-false-h5p.ts # Script de descarga
+│   └── with-session.ts           # Verificación de sesión
+├── downloads/                    # Archivos descargados
+├── screenshots/                  # Screenshots de errores
+├── .env                          # Variables de entorno (crear)
+└── h5p-auth.json                 # Sesión guardada (generado)
 ```
 
-## 🚀 Instalación
+## 🚀 Uso Rápido
 
-1. Clona el repositorio
-2. Instala las dependencias:
+### 1. Instalar dependencias
 
 ```bash
 npm install
 ```
 
-3. Instala los navegadores de Playwright:
+### 2. Configurar credenciales
 
-```bash
-npx playwright install
-```
-
-4. Configura las variables de entorno:
-
-```bash
-cp .env.example .env
-# Edita .env con tus credenciales
-```
-
-## ⚙️ Configuración
-
-Crea un archivo `.env` en la raíz del proyecto:
+Crea un archivo `.env`:
 
 ```env
-# Credenciales de H5P.org
-H5P_USER=tu-usuario@ejemplo.com
-H5P_PASS=tu-contraseña
-
-# Configuración del navegador (opcional)
-HEADLESS=false  # true = sin interfaz gráfica, false = visible
+H5P_USER=tu_usuario
+H5P_PASS=tu_password
+HEADLESS=true  # false para ver el navegador
 ```
 
-## 📖 Uso
-
-### Login y Guardar Sesión
-
-Ejecuta el script de login para autenticarte y guardar la sesión:
+### 3. Ejecutar scripts
 
 ```bash
+# Login y guardar sesión
 npm run login
-```
 
-Este comando:
-1. Abre el navegador (si `HEADLESS=false`)
-2. Navega a H5P.org
-3. Realiza el login con tus credenciales
-4. Guarda la sesión en `h5p-auth.json`
+# Descargar contenido (requiere login previo)
+npm run download
 
-### Reutilizar Sesión Guardada
-
-Para verificar que la sesión funciona:
-
-```bash
+# Verificar sesión guardada
 npm run verify-session
 ```
 
-### Verificación de Calidad del Código
+## 🏗️ Arquitectura
 
-**Verificar tipos TypeScript:**
-```bash
-npm run type-check
-```
+### Page Objects
 
-**Ejecutar linter:**
-```bash
-npm run lint
-```
-
-**Formatear código:**
-```bash
-npm run format
-```
-
-**Verificar todo (types, lint, format):**
-```bash
-npm run quality
-```
-
-**Auto-corregir problemas:**
-```bash
-npm run quality:fix
-```
-
-## 🏛️ Patrones de Diseño
-
-### Page Object Pattern
-
-La lógica de interacción con las páginas está encapsulada en clases dedicadas:
+Los Page Objects encapsulan la interacción con las páginas, manteniendo el código DRY:
 
 ```typescript
-import { H5PLoginPage } from './pages/h5p-login.page.js';
-
-const loginPage = new H5PLoginPage(page);
-await loginPage.performFullLogin(credentials);
+// src/pages/h5p-login.page.ts
+export class H5PLoginPage {
+  async login(credentials: H5PCredentials): Promise<void> {
+    // Toda la lógica de login encapsulada
+  }
+}
 ```
-
-**Beneficios:**
-- Código reutilizable
-- Fácil mantenimiento
-- Selectores centralizados
-- Tests más legibles
 
 ### Configuración Centralizada
 
-Todas las configuraciones están en `src/config/browser.config.ts`:
+Todo en un solo lugar, fácil de modificar:
 
 ```typescript
-export const browserConfig: BrowserConfig = {
-  headless: true,
-  defaultTimeout: 30_000,
-  navigationTimeout: 30_000,
+// src/config.ts
+export const config = {
+  urls: { ... },
+  paths: { ... },
+  browser: { ... },
 };
 ```
 
-### Manejo de Variables de Entorno
+### Logger Simple
 
-Utilidades type-safe para variables de entorno:
+Logger efectivo sin complejidad innecesaria:
 
 ```typescript
-import { getH5PCredentials } from './utils/env.js';
-
-const credentials = getH5PCredentials();
+logger.info('Mensaje informativo');
+logger.success('Operación exitosa');
+logger.error('Algo salió mal', error);
 ```
 
 ## 📝 Scripts Disponibles
 
-| Script | Comando | Descripción |
-|--------|---------|-------------|
-| Login | `npm run login` | Ejecuta el flujo de login y guarda sesión |
-| Verificar Sesión | `npm run verify-session` | Verifica que la sesión guardada funciona |
-| Type Check | `npm run type-check` | Verifica tipos TypeScript sin compilar |
-| Lint | `npm run lint` | Ejecuta ESLint para encontrar problemas |
-| Lint Fix | `npm run lint:fix` | Auto-corrige problemas de ESLint |
-| Format | `npm run format` | Formatea código con Prettier |
-| Format Check | `npm run format:check` | Verifica formato sin modificar |
-| Quality | `npm run quality` | Ejecuta todas las verificaciones |
-| Quality Fix | `npm run quality:fix` | Auto-corrige formato y lint |
+| Script                   | Descripción                   |
+| ------------------------ | ----------------------------- |
+| `npm run login`          | Realiza login y guarda sesión |
+| `npm run download`       | Descarga contenido True/False |
+| `npm run verify-session` | Verifica sesión guardada      |
+| `npm run type-check`     | Verifica tipos TypeScript     |
+| `npm run lint`           | Ejecuta ESLint                |
+| `npm run format`         | Formatea código con Prettier  |
 
-## 🛠️ Desarrollo
+## 🔧 Extender el Proyecto
 
-### Manejo de Errores
+### Agregar un nuevo script de descarga
 
-El proyecto usa custom error classes para diferentes escenarios:
+1. **Crea el script** en `src/`:
 
 ```typescript
-import { LoginError, NavigationError } from './utils/errors.js';
-
-try {
-  await login();
-} catch (error) {
-  if (error instanceof LoginError) {
-    // Manejo específico para errores de login
-  }
-}
-```
-
-### Retry Logic
-
-Operaciones propensas a fallar incluyen reintentos automáticos:
-
-```typescript
-import { withRetry, UI_RETRY_OPTIONS } from './utils/retry.js';
-
-await withRetry(
-  async () => await page.click('#button'),
-  UI_RETRY_OPTIONS,
-  'Click en botón'
-);
-```
-
-### Logging
-
-Usa el logger estructurado en lugar de console.log:
-
-```typescript
+import { chromium } from 'playwright';
+import { H5PDownloadPage } from './pages/h5p-download.page.js';
+import { config } from './config.js';
 import { logger } from './utils/logger.js';
 
-logger.info('Operación completada', { duration: 1000 });
-logger.error('Error encontrado', error, { context: 'Login' });
+async function main(): Promise<void> {
+  // ... tu lógica
+}
+
+main();
 ```
 
-### Agregar Nuevas Páginas
+2. **Agrega el comando** en `package.json`:
 
-1. Crea un nuevo Page Object en `src/pages/`:
-
-```typescript
-export class MiNuevaPagina {
-  constructor(private readonly page: Page) {}
-  
-  async miMetodo(): Promise<void> {
-    // Implementación
+```json
+{
+  "scripts": {
+    "download:mi-contenido": "tsx src/download-mi-contenido.ts"
   }
 }
 ```
 
-2. Usa el Page Object en tus scripts:
+### Agregar un nuevo Page Object
+
+1. **Crea el archivo** en `src/pages/`:
 
 ```typescript
-const miPagina = new MiNuevaPagina(page);
-await miPagina.miMetodo();
+export class MiNuevoPage {
+  constructor(private readonly page: Page) {}
+
+  async hacerAlgo(): Promise<void> {
+    // Tu lógica
+  }
+}
 ```
 
-### Configurar Timeouts
-
-Edita `src/config/browser.config.ts`:
+2. **Úsalo** en tus scripts:
 
 ```typescript
-export const timeouts = {
-  elementWait: 10_000,
-  navigation: 30_000,
-  sessionVerification: 15_000,
-};
+const miPage = new MiNuevoPage(page);
+await miPage.hacerAlgo();
 ```
 
-## 🐛 Debugging
+## 🎓 Conceptos Aplicados
 
-### Modo Visual
+- **Page Object Pattern**: Separación de lógica de UI
+- **Don't Repeat Yourself (DRY)**: Código reutilizable
+- **Single Responsibility**: Cada clase hace una cosa bien
+- **Type Safety**: TypeScript para prevenir errores
+- **Clean Code**: Código legible y auto-documentado
 
-Ejecuta con el navegador visible:
+## 📊 Métricas del Proyecto
 
-```bash
-HEADLESS=false npm run login
-```
+- **Archivos de código**: ~10
+- **Líneas de código**: ~250-300
+- **Complejidad**: Baja, enfocada en legibilidad
+- **Ratio funcionalidad/código**: Óptimo
 
-### Screenshots de Error
+## ⚡ Por Qué Esta Arquitectura
 
-En caso de fallo, se guarda automáticamente un screenshot en `error.png`.
+Este proyecto equilibra:
 
-## 📚 Documentación del Código
+1. **Profesionalismo**: Usa patrones de diseño reconocidos
+2. **Pragmatismo**: No hay código innecesario
+3. **Escalabilidad**: Fácil agregar nuevos scripts
+4. **Mantenibilidad**: Código claro y organizado
 
-Todo el código está documentado con TSDoc. Para ver la documentación:
+**No es sobre-ingeniería**, es arquitectura limpia aplicada correctamente.
 
-1. Pasa el cursor sobre cualquier función/clase en VS Code
-2. O lee los comentarios directamente en el código
+## 🤝 Contribuir
 
-## 🔒 Seguridad
-
-⚠️ **Importante:** 
-- Nunca commits el archivo `.env` con credenciales reales
-- El archivo `h5p-auth.json` contiene sesión activa, no lo compartas
-- Agrega ambos archivos a `.gitignore`
-
-## 📦 Dependencias
-
-**Producción:**
-- **playwright**: Framework de automatización de navegadores
-- **dotenv**: Carga variables de entorno desde `.env`
-
-**Desarrollo:**
-- **typescript**: Superset de JavaScript con tipos estáticos
-- **ts-node**: Ejecuta TypeScript directamente sin compilar
-- **eslint**: Herramienta de linting para JavaScript/TypeScript
-- **@typescript-eslint**: Plugin de ESLint para TypeScript
-- **prettier**: Formateador de código automático
-- **@types/node**: Definiciones de tipos para Node.js
-
+1. Mantén la simplicidad
+2. Documenta solo lo necesario
+3. Sigue los patrones existentes
+4. Ejecuta `npm run type-check` antes de commit
 
 ## 📄 Licencia
 

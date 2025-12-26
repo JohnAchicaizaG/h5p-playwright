@@ -1,51 +1,33 @@
 import { chromium } from 'playwright';
 import { H5PDownloadPage } from './pages/h5p-download.page.js';
-import { getBrowserConfigFromEnv } from './utils/env.js';
-import { browserConfig, pathConfig, directories } from './config/browser.config.js';
-import { generateScreenshotFileName } from './utils/screenshot.js';
+import { config } from './config.js';
 import { logger } from './utils/logger.js';
+import fs from 'node:fs';
 import path from 'node:path';
-
-const downloadLogger = logger.child('Main');
 
 /**
  * Script para descargar contenido H5P (True/False Question).
  *
- * Este script utiliza el patrón Page Object para mantener el código organizado.
- * Requiere una sesión activa (ejecutar login.ts primero).
- *
- * @remarks
- * Requiere que exista h5p-auth.json generado por login.ts
- *
- * @example
- * ```bash
- * # Primero hacer login
- * npm run login
- * # Luego ejecutar la descarga
- * npm run download
- * ```
+ * Requiere sesión activa (ejecutar login.ts primero).
  */
 async function main(): Promise<void> {
-  const stopTimer = downloadLogger.time('⏱️ Proceso completo de descarga');
-
   try {
-    downloadLogger.info('Iniciando script de descarga');
+    logger.info('Iniciando proceso de descarga');
 
-    // Configuración
-    const config = getBrowserConfigFromEnv(browserConfig);
-    const downloadDir = path.resolve(process.cwd(), directories.downloads);
+    // Verificar que existe la sesión
+    if (!fs.existsSync(config.paths.authFile)) {
+      throw new Error(`No se encontró ${config.paths.authFile}. Ejecuta 'npm run login' primero.`);
+    }
 
-    downloadLogger.debug('Configuración cargada', {
-      headless: config.headless,
-      downloadDir,
-    });
+    // Crear directorios
+    const downloadDir = path.resolve(process.cwd(), config.paths.downloads);
+    fs.mkdirSync(downloadDir, { recursive: true });
+    fs.mkdirSync(config.paths.screenshots, { recursive: true });
 
-    // Inicializar navegador con sesión guardada
-    downloadLogger.debug('Lanzando navegador con sesión guardada');
-    const browser = await chromium.launch({ headless: config.headless });
-
+    // Lanzar navegador con sesión guardada
+    const browser = await chromium.launch({ headless: config.browser.headless });
     const context = await browser.newContext({
-      storageState: pathConfig.authFile,
+      storageState: config.paths.authFile,
       acceptDownloads: true,
     });
 
@@ -53,40 +35,22 @@ async function main(): Promise<void> {
     const downloadPage = new H5PDownloadPage(page);
 
     try {
-      // Ejecutar descarga usando el Page Object
-      const result = await downloadPage.downloadContent({
-        contentType: 'True/False Question',
-        downloadDir,
-      });
-
-      if (!result.success) {
-        throw result.error ?? new Error(result.message);
-      }
-
-      downloadLogger.info('✅ Descarga completada exitosamente', {
-        fileName: result.fileName,
-        filePath: result.filePath,
-      });
-    } catch (err) {
-      // Manejo de errores con screenshot
-      downloadLogger.error('❌ Error en el proceso de descarga', err, {
-        url: downloadPage.getCurrentUrl(),
-      });
-
-      const screenshotPath = generateScreenshotFileName('download-error');
-      await downloadPage.captureScreenshot(screenshotPath);
-      downloadLogger.warn(`📸 Screenshot guardado: ${screenshotPath}`);
-
-      process.exitCode = 1;
+      // Descargar contenido
+      const result = await downloadPage.downloadContent('True/False Question', downloadDir);
+      logger.success('Descarga completada');
+      logger.info(`Archivo: ${result.fileName}`);
+      logger.info(`Ubicación: ${result.filePath}`);
+    } catch (error) {
+      logger.error('Error durante la descarga', error);
+      await downloadPage.screenshot(`${config.paths.screenshots}/download-error.png`);
+      logger.warn('Screenshot guardado en screenshots/download-error.png');
+      process.exit(1);
     } finally {
       await browser.close();
-      downloadLogger.debug('Navegador cerrado');
     }
-  } catch (err) {
-    downloadLogger.error('❌ Error crítico en el script', err);
-    process.exitCode = 1;
-  } finally {
-    stopTimer();
+  } catch (error) {
+    logger.error('Error crítico', error);
+    process.exit(1);
   }
 }
 
