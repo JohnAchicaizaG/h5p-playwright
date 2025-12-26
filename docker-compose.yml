@@ -1,0 +1,78 @@
+# ============================================
+# Docker Compose - Configuración para DESARROLLO
+# ============================================
+# Este archivo está optimizado para desarrollo local con acceso
+# fácil a los archivos generados y código sincronizado
+
+services:
+  h5p:
+    # Construir desde el Dockerfile local
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    # Nombre del container
+    container_name: h5p-playwright-dev
+
+    # Nombre de la imagen generada
+    image: h5p-playwright:latest
+
+    # ============================================
+    # Variables de entorno
+    # ============================================
+    # Cargar desde archivo .env (debe existir en la raíz del proyecto)
+    env_file:
+      - .env
+
+    # Forzar modo headless en Docker (no hay display gráfico)
+    environment:
+      - HEADLESS=true
+      - NODE_ENV=development
+
+    # ============================================
+    # Volúmenes - Bind mounts para desarrollo
+    # ============================================
+    # Usar bind mounts para fácil acceso desde el host
+    volumes:
+      # Sesión de autenticación (lectura/escritura)
+      - ./h5p-auth.json:/app/h5p-auth.json
+
+      # Archivos descargados (lectura/escritura)
+      - ./downloads:/app/downloads
+
+      # Screenshots de errores (lectura/escritura)
+      - ./screenshots:/app/screenshots
+
+      # Código fuente sincronizado (solo lectura)
+      # Permite ver cambios sin rebuild (útil para desarrollo)
+      - ./src:/app/src:ro
+
+    # ============================================
+    # Red
+    # ============================================
+    # Acceso a internet requerido para conectar a h5p.org
+    networks:
+      - h5p-network
+
+    # ============================================
+    # Configuración adicional
+    # ============================================
+    # No exponer puertos (es una aplicación CLI, no servidor web)
+    # No usar restart policy en desarrollo (queremos control manual)
+
+    # Límites de recursos (ajustar según tu sistema)
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+# ============================================
+# Redes
+# ============================================
+networks:
+  h5p-network:
+    driver: bridge

@@ -21,12 +21,15 @@ export class H5PLoginPage {
    * Realiza el login completo en H5P.org.
    */
   async login(credentials: H5PCredentials): Promise<void> {
-    // Navegar a la página principal
-    await this.page.goto(config.urls.home, { waitUntil: 'domcontentloaded' });
+    // Navegar a la página principal (timeout aumentado para sitios lentos)
+    await this.page.goto(config.urls.home, {
+      waitUntil: 'domcontentloaded',
+      timeout: 60000 // 60 segundos
+    });
 
     // Hacer clic en "Log in"
     await Promise.all([
-      this.page.waitForURL(config.urls.loginPattern),
+      this.page.waitForURL(config.urls.loginPattern, { timeout: 60000 }),
       this.page.getByRole('link', { name: 'Log in' }).click(),
     ]);
 
@@ -36,12 +39,12 @@ export class H5PLoginPage {
 
     // Enviar y esperar navegación
     await Promise.all([
-      this.page.waitForLoadState('networkidle'),
+      this.page.waitForLoadState('networkidle', { timeout: 60000 }),
       this.page.locator('#edit-submit').click(),
     ]);
 
-    // Verificar login exitoso
-    await this.page.getByRole('link', { name: 'Log out' }).waitFor();
+    // Verificar login exitoso (timeout aumentado)
+    await this.page.getByRole('link', { name: 'Log out' }).waitFor({ timeout: 60000 });
   }
 
   /**

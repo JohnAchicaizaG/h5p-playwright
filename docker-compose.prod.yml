@@ -1,0 +1,99 @@
+# ============================================
+# Docker Compose - Configuración para PRODUCCIÓN
+# ============================================
+# Este archivo está optimizado para producción con named volumes
+# (mejor performance) y configuraciones de seguridad y resiliencia
+
+services:
+  h5p:
+    # Usar imagen pre-construida (no build desde código)
+    image: h5p-playwright:latest
+
+    # Nombre del container
+    container_name: h5p-playwright-prod
+
+    # ============================================
+    # Variables de entorno
+    # ============================================
+    # Usar archivo .env.prod separado para producción
+    # IMPORTANTE: Crear este archivo y NO comitearlo a git
+    env_file:
+      - .env.prod
+
+    # Forzar configuración de producción
+    environment:
+      - HEADLESS=true
+      - NODE_ENV=production
+
+    # ============================================
+    # Volúmenes - Named volumes para producción
+    # ============================================
+    # Named volumes tienen mejor performance que bind mounts
+    # especialmente en macOS y Windows
+    volumes:
+      # Sesión de autenticación
+      - h5p-auth:/app/h5p-auth.json
+
+      # Archivos descargados
+      - h5p-downloads:/app/downloads
+
+      # Screenshots de errores
+      - h5p-screenshots:/app/screenshots
+
+    # ============================================
+    # Red
+    # ============================================
+    networks:
+      - h5p-network
+
+    # ============================================
+    # Producción: Resiliencia y límites
+    # ============================================
+
+    # Política de reinicio automático
+    # unless-stopped = reinicia siempre excepto si se detuvo manualmente
+    restart: unless-stopped
+
+    # Límites de recursos (protección contra consumo excesivo)
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'      # Máximo 2 CPUs
+          memory: 2G       # Máximo 2GB de RAM
+        reservations:
+          cpus: '1.0'      # Mínimo 1 CPU garantizado
+          memory: 512M     # Mínimo 512MB garantizado
+
+    # Health check (opcional - descomentar si es útil)
+    # healthcheck:
+    #   test: ["CMD", "node", "-e", "console.log('ok')"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 10s
+
+# ============================================
+# Volúmenes nombrados
+# ============================================
+# Estos volúmenes persisten los datos en el sistema Docker
+# Para hacer backup: docker volume create --name h5p-backup
+volumes:
+  h5p-auth:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./h5p-auth.json
+
+  h5p-downloads:
+    driver: local
+
+  h5p-screenshots:
+    driver: local
+
+# ============================================
+# Redes
+# ============================================
+networks:
+  h5p-network:
+    driver: bridge

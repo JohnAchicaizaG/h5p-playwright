@@ -63,6 +63,50 @@ npm run download
 npm run verify-session
 ```
 
+## 🐳 Uso con Docker
+
+¿Prefieres no instalar Node.js y dependencias? Usa Docker para ejecutar todo en un contenedor aislado.
+
+### Opción 1: Scripts helpers (más fácil)
+
+```bash
+# Build de la imagen
+./docker/docker-build.sh
+
+# Login
+./docker/docker-login.sh
+
+# Download
+./docker/docker-download.sh
+
+# Verificar sesión
+./docker/docker-verify.sh
+```
+
+### Opción 2: Docker Compose directo
+
+```bash
+# Build
+docker compose build
+
+# Login
+docker compose run --rm h5p npm run login
+
+# Download
+docker compose run --rm h5p npm run download
+```
+
+### Opción 3: npm scripts
+
+```bash
+npm run docker:build
+npm run docker:login
+npm run docker:download
+npm run docker:verify
+```
+
+📖 **Documentación completa:** [docker/README-Docker.md](docker/README-Docker.md)
+
 ## 🏗️ Arquitectura
 
 ### Page Objects

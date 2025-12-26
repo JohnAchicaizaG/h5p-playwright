@@ -24,7 +24,8 @@ export const config = {
 
   /** Configuración del navegador */
   browser: {
-    headless: process.env.HEADLESS !== 'false', // por defecto headless
+    // Headless por defecto (true), solo false si explícitamente es 'false'
+    headless: process.env.HEADLESS === 'false' ? false : true,
   },
 
   /** Credenciales desde variables de entorno */

@@ -21,8 +21,11 @@ export class H5PDownloadPage {
    * Descarga un contenido H5P específico.
    */
   async downloadContent(contentName: string, downloadDir: string): Promise<DownloadResult> {
-    // Navegar a página de ejemplos
-    await this.page.goto(config.urls.home, { waitUntil: 'domcontentloaded' });
+    // Navegar a página de ejemplos (timeout aumentado para sitios lentos)
+    await this.page.goto(config.urls.home, {
+      waitUntil: 'domcontentloaded',
+      timeout: 60000 // 60 segundos (vs 30 por defecto)
+    });
     await this.page.getByRole('heading', { name: 'Examples and Downloads' }).waitFor();
 
     // Navegar al contenido específico
